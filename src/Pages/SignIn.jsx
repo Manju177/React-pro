@@ -8,7 +8,7 @@ function SiginIn() {
 
   const navigate=useNavigate()
   const dispatch=useDispatch()
-  const {loading,error}=useSelector((state)=>state.user)
+  const {loading,error}=useSelector((state)=>state)
 
   const handleChange=(e)=>{
         setFormData({

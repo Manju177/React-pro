@@ -17,6 +17,10 @@ function Profile() {
         className='border p-3 rounded-lg'/>
         <button className='bg-slate-800 p-3 text-center rounded-lg uppercase text-white'>update</button>
       </form>
+      <div className='flex justify-between mt-5'>
+        <span className='text-red-700 cursor-pointer'>Delete Account</span>
+        <span className='text-red-700 cursor-pointer'>Sign out</span>
+      </div>
     </div>
   )
 }

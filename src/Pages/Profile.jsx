@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useRef } from 'react'
 import {
@@ -9,9 +9,9 @@ import {
 } from 'firebase/storage';
 import { useDispatch } from 'react-redux';
 import { app } from '../firebase';
-import {updateUserStart,updateUserSuccess,updateUserFailure} from '../redux/user/user.slice';
+import { updateUserStart, updateUserSuccess, updateUserFailure, deleteFailure, deleteSuccess } from '../redux/user/user.slice';
 import { FaEye } from "react-icons/fa";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast} from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 
 
@@ -29,14 +29,14 @@ function Profile() {
   const dispatch = useDispatch();
   console.log(file)
 
-    
-   useEffect(() => {
-   if(file){
-    handleFileUpload(file)
-   }
-   }, [file])
 
-   const handleFileUpload = (file) => {
+  useEffect(() => {
+    if (file) {
+      handleFileUpload(file)
+    }
+  }, [file])
+
+  const handleFileUpload = (file) => {
     const storage = getStorage(app);
     const fileName = new Date().getTime() + file.name;
     const storageRef = ref(storage, fileName);
@@ -65,15 +65,46 @@ function Profile() {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleSubmit=async(e)=>{
+  const handleDelete = async (e) => {
+    e.preventDefault()
+    if (error) {
+      toast.error("Failed to Delete User", {
+        position: toast.POSITION.TOP_CENTER
+      });
+    }
+    try {
+      const res = await fetch(`/api/user/delete/${createUser._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      const deleteData = await res.json();
+      if (deleteData.success === false) {
+        dispatch(deleteFailure(deleteData.message));
+        return;
+      }
+      dispatch(deleteSuccess(deleteData));
+      toast.success("User Deleted Successfully !", {
+        position: toast.POSITION.TOP_CENTER
+      });
+    } catch (error) {
+      dispatch(deleteFailure(error.message))
+    }
+
+
+
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if(error){
+    if (error) {
       toast.error("Failed to Update", {
         position: toast.POSITION.TOP_CENTER
       });
     }
     try {
-      console.log('formData',formData)
+      console.log('formData', formData)
       dispatch(updateUserStart());
       const res = await fetch(`/api/user/update/${createUser._id}`, {
         method: 'POST',
@@ -90,27 +121,27 @@ function Profile() {
       }
 
       dispatch(updateUserSuccess(data));
-        toast.success("Data Updated Successfully !", {
-      position: toast.POSITION.TOP_CENTER
-    });
+      toast.success("Data Updated Successfully !", {
+        position: toast.POSITION.TOP_CENTER
+      });
       setUpdateSuccess(true);
 
-      
+
     } catch (error) {
       dispatch(updateUserFailure(error.message))
- 
+
     }
 
   }
-   
+
   return (
     <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-3xl text-center font-semibold my-7'>Profile</h1>
       <form className='flex flex-col gap-4 self-center' onSubmit={handleSubmit}>
-        <input type='file' hidden ref={fileRef} onChange={(e)=>setFile(e.target.files[0])}/>
-        <img onClick={()=>fileRef.current.click()} src={formData.avatar || createUser.avatar} alt='profile'
-        className='rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2'/>
-                <p className='text-sm self-center'>
+        <input type='file' hidden ref={fileRef} onChange={(e) => setFile(e.target.files[0])} />
+        <img onClick={() => fileRef.current.click()} src={formData.avatar || createUser.avatar} alt='profile'
+          className='rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2' />
+        <p className='text-sm self-center'>
           {fileUploadError ? (
             <span className='text-red-700'>
               Error Image upload (image must be less than 2 mb)
@@ -124,20 +155,20 @@ function Profile() {
           )}
         </p>
         <input type='text' placeholder='username' onChange={handleChange} defaultValue={createUser.username} id='username'
-        className='border p-3 rounded-lg'/>
+          className='border p-3 rounded-lg' />
         <input type='text' placeholder='email' onChange={handleChange} defaultValue={createUser.email} id='email'
-        className='border p-3 rounded-lg'/>
+          className='border p-3 rounded-lg' />
         <input type='text' placeholder='password' onChange={handleChange} id='password'
-        className='border p-3 rounded-lg'/>
-       
-        <button className='bg-slate-800 p-3 text-center rounded-lg uppercase text-white'>{loading?"Loading...":"update"}</button>
+          className='border p-3 rounded-lg' />
+
+        <button className='bg-slate-800 p-3 text-center rounded-lg uppercase text-white'>{loading ? "Loading..." : "update"}</button>
       </form>
       <div className='flex justify-between mt-5'>
-        <span className='text-red-700 cursor-pointer'>Delete Account</span>
+        <span className='text-red-700 cursor-pointer' onClick={handleDelete}>Delete Account</span>
         <span className='text-red-700 cursor-pointer'>Sign out</span>
       </div>
-      <p className='text-red-500 mt-5' >{error?error:""}</p>
-      <ToastContainer />
+      <p className='text-red-500 mt-5' >{error ? error : ""}</p>
+      
 
     </div>
   )

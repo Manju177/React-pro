@@ -9,7 +9,7 @@ import {
 } from 'firebase/storage';
 import { useDispatch } from 'react-redux';
 import { app } from '../firebase';
-import { updateUserStart, updateUserSuccess, updateUserFailure, deleteFailure, deleteSuccess } from '../redux/user/user.slice';
+import { updateUserStart, updateUserSuccess, updateUserFailure, deleteFailure, deleteSuccess, signoutStart, signoutSuccess, signoutFailure } from '../redux/user/user.slice';
 import { FaEye } from "react-icons/fa";
 import { toast} from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
@@ -67,11 +67,7 @@ function Profile() {
 
   const handleDelete = async (e) => {
     e.preventDefault()
-    if (error) {
-      toast.error("Failed to Delete User", {
-        position: toast.POSITION.TOP_CENTER
-      });
-    }
+
     try {
       const res = await fetch(`/api/user/delete/${createUser._id}`, {
         method: 'DELETE',
@@ -88,12 +84,45 @@ function Profile() {
       toast.success("User Deleted Successfully !", {
         position: toast.POSITION.TOP_CENTER
       });
+      if (error) {
+        toast.error("Failed to Delete User", {
+          position: toast.POSITION.TOP_CENTER
+        });
+      }
     } catch (error) {
       dispatch(deleteFailure(error.message))
     }
+  }
 
+  const handleSignout=async(e)=>{
+    e.preventDefault()
 
-
+    try {
+      dispatch(signoutStart())
+      const res = await fetch('api/auth/signout',{
+        method:"POST",
+        headers:{
+          'Content-Type': 'application/json',
+        },
+      })
+      const data=await res.json()
+      if(data.success===false){
+        dispatch(signoutFailure(data.message));
+        return;
+      }
+      dispatch(signoutSuccess(data.message))
+      toast.success("User Signout Successfully !", {
+        position: toast.POSITION.TOP_CENTER
+      });
+      if (error) {
+        toast.error("Failed to signout User", {
+          position: toast.POSITION.TOP_CENTER
+        });
+      }
+    } catch (error) {
+      dispatch(signoutFailure(error.message))
+      
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -165,7 +194,7 @@ function Profile() {
       </form>
       <div className='flex justify-between mt-5'>
         <span className='text-red-700 cursor-pointer' onClick={handleDelete}>Delete Account</span>
-        <span className='text-red-700 cursor-pointer'>Sign out</span>
+        <span className='text-red-700 cursor-pointer' onClick={handleSignout} >Sign out</span>
       </div>
       <p className='text-red-500 mt-5' >{error ? error : ""}</p>
       

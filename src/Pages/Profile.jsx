@@ -9,6 +9,10 @@ import {
 } from 'firebase/storage';
 import { useDispatch } from 'react-redux';
 import { app } from '../firebase';
+import {updateUserStart,updateUserSuccess,updateUserFailure} from '../redux/user/user.slice';
+import { FaEye } from "react-icons/fa";
+import { toast, ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 
 
@@ -60,11 +64,49 @@ function Profile() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
+
+  const handleSubmit=async(e)=>{
+    e.preventDefault();
+    if(error){
+      toast.error("Failed to Update", {
+        position: toast.POSITION.TOP_CENTER
+      });
+    }
+    try {
+      console.log('formData',formData)
+      dispatch(updateUserStart());
+      const res = await fetch(`/api/user/update/${createUser._id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
+        return;
+      }
+
+      dispatch(updateUserSuccess(data));
+        toast.success("Data Updated Successfully !", {
+      position: toast.POSITION.TOP_CENTER
+    });
+      setUpdateSuccess(true);
+
+      
+    } catch (error) {
+      dispatch(updateUserFailure(error.message))
+ 
+    }
+
+  }
    
   return (
     <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-3xl text-center font-semibold my-7'>Profile</h1>
-      <form className='flex flex-col gap-4 self-center'>
+      <form className='flex flex-col gap-4 self-center' onSubmit={handleSubmit}>
         <input type='file' hidden ref={fileRef} onChange={(e)=>setFile(e.target.files[0])}/>
         <img onClick={()=>fileRef.current.click()} src={formData.avatar || createUser.avatar} alt='profile'
         className='rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2'/>
@@ -81,18 +123,22 @@ function Profile() {
             ''
           )}
         </p>
-        <input type='text' placeholder='username' onChange={handleChange}
+        <input type='text' placeholder='username' onChange={handleChange} defaultValue={createUser.username} id='username'
         className='border p-3 rounded-lg'/>
-        <input type='text' placeholder='email' onChange={handleChange}
+        <input type='text' placeholder='email' onChange={handleChange} defaultValue={createUser.email} id='email'
         className='border p-3 rounded-lg'/>
-        <input type='text' placeholder='password' onChange={handleChange}
+        <input type='text' placeholder='password' onChange={handleChange} id='password'
         className='border p-3 rounded-lg'/>
-        <button className='bg-slate-800 p-3 text-center rounded-lg uppercase text-white'>update</button>
+       
+        <button className='bg-slate-800 p-3 text-center rounded-lg uppercase text-white'>{loading?"Loading...":"update"}</button>
       </form>
       <div className='flex justify-between mt-5'>
         <span className='text-red-700 cursor-pointer'>Delete Account</span>
         <span className='text-red-700 cursor-pointer'>Sign out</span>
       </div>
+      <p className='text-red-500 mt-5' >{error?error:""}</p>
+      <ToastContainer />
+
     </div>
   )
 }

@@ -13,6 +13,7 @@ import { updateUserStart, updateUserSuccess, updateUserFailure, deleteFailure, d
 import { FaEye } from "react-icons/fa";
 import { toast} from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { Link } from 'react-router-dom';
 
 
 
@@ -191,6 +192,7 @@ function Profile() {
           className='border p-3 rounded-lg' />
 
         <button className='bg-slate-800 p-3 text-center rounded-lg uppercase text-white'>{loading ? "Loading..." : "update"}</button>
+        <Link to={"/create-listing"} className='bg-orange-400 uppercase p-3 rounded-lg text-center text-white'>Creating List</Link>
       </form>
       <div className='flex justify-between mt-5'>
         <span className='text-red-700 cursor-pointer' onClick={handleDelete}>Delete Account</span>

@@ -25,6 +25,7 @@ function Profile() {
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [listingError, setListingError] = useState(false);
   const [showListingsError, setShowListingsError] = useState(false);
   const [userListings, setUserListings] = useState([]);
   const dispatch = useDispatch();
@@ -126,6 +127,24 @@ function Profile() {
     }
   }
 
+  const handleListing=async(e)=>{
+    e.preventDefault()
+    try {
+      setListingError(false)
+      const data=await fetch(`/api/user/listings/${createUser._id}`);
+      const res=await data.json();
+      console.log('res',res)
+      if(res.success===false){
+        setListingError(true)
+        return;
+      }
+      setUserListings(res)
+    } catch (error) {
+      setListingError(true)
+      
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (error) {
@@ -164,6 +183,25 @@ function Profile() {
 
   }
 
+  const handleListingDelete = async (listingId) => {
+    try {
+      const res = await fetch(`/api/listing/delete/${listingId}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        console.log(data.message);
+        return;
+      }
+
+      setUserListings((prev) =>
+        prev.filter((listing) => listing._id !== listingId)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   return (
     <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-3xl text-center font-semibold my-7'>Profile</h1>
@@ -196,7 +234,32 @@ function Profile() {
       </form>
       <div className='flex justify-between mt-5'>
         <span className='text-red-700 cursor-pointer' onClick={handleDelete}>Delete Account</span>
+        <span className='text-green-900 cursor-pointer' onClick={handleListing}>Show Listing</span>
         <span className='text-red-700 cursor-pointer' onClick={handleSignout} >Sign out</span>
+      </div>
+      <br/>
+      <div className={true?"w-auto h-auto overflow-auto shadow-2xl max-h-40 top-0 left-0 items-center text-center ":"hidden"}>
+        {userListings&&
+          userListings.map((data)=>{
+            return(
+              <div className='flex justify-between items-center m-auto text-center'>
+                <Link>
+                <img className='w-55 h-20 gap-10 p-3 object-contain'  src={data.imageUrls[0]} alt='blank'/>
+                </Link>
+                <Link
+                className='text-slate-700 font-semibold  hover:underline truncate flex-1'
+                to={`/listing/${data._id}`}
+              >
+                <p>{data.name}</p>
+              </Link>
+                <button onClick={()=>handleListingDelete(data._id)}  className='p-3 rounded-lg uppercase hover:opacity-75 text-red-900 '>Delete</button>
+                <Link to={`/update-listing/${data._id}`}>
+                <button   className='p-3 rounded-lg uppercase hover:opacity-75 text-green-700 '>Edit</button>
+                </Link>
+              </div>
+            )
+          })
+        }
       </div>
       <p className='text-red-500 mt-5' >{error ? error : ""}</p>
       

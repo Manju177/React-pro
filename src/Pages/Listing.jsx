@@ -26,6 +26,7 @@ export default function Listing() {
   const [copied, setCopied] = useState(false);
   const [contact, setContact] = useState(false);
   const params = useParams();
+  console.log('params',params)
   const { createUser } = useSelector((state) => state);
 
   useEffect(() => {

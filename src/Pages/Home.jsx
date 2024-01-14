@@ -46,16 +46,16 @@ export default function Home() {
     fetchOfferListings();
   }, []);
   return (
-    <div className='bg-gradient-to-r from-gray-900 ...'>
+    <div>
       {/* top */}
       <div className='flex flex-col gap-6 p-28 px-3 max-w-6xl mx-auto animate-pulse'>
         <h1 className='text-slate-700 font-bold text-3xl lg:text-6xl'>
-        <span className='text-slate-50'>Don't</span> <span className='text-slate-500 '>Dream</span> <span className='text-slate-50'>about owning a property</span>
+          Don't <span className='text-slate-500 '>Dream</span> about owning a property
           <br />
-          <span className='text-slate-50'> Let's make it happen</span>
+          Let's make it happen
         </h1>
         <div className='text-gray-400 text-xs sm:text-sm'>
-          Manju Estate is the best place to find your next perfect place to
+         Manju Estate is the best place to find your next perfect place to
           live.
           <br />
           We have a wide range of properties for you to choose from.

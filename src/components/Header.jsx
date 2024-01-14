@@ -64,7 +64,7 @@ export default function Header() {
                             ? (
                                 <img className='h-7 w-7 rounded-full' src={createUser.avatar} alt='profile'/>
                             ):(
-                                <li className='hidden sm:inline text-slate-700 hover:underline'>
+                                <li className='hidden sm:inline text-white hover:underline'>
                                 Sign In
                             </li>
                             )

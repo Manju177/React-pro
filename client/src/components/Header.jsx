@@ -10,6 +10,8 @@ export default function Header() {
     const handleSubmit=(e)=>{
         e.preventDefault();
         const urlParams=new URLSearchParams(window.location.search)
+        console.log('urlParams',urlParams)
+        console.log('window.location.search',window.location.search)
         
         urlParams.set('searchedItem',searchedItem)
         console.log('urlParams',searchedItem)
